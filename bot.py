@@ -15,18 +15,50 @@ from lore_writer import LoreWriter, LoreWriterError
 load_dotenv()
 
 DISCORD_TOKEN = os.environ["DISCORD_TOKEN"]
-GUILD_NAME = os.getenv("GUILD_NAME", "J'ai Pull Sans Capote")
+GUILD_NAME = os.getenv("GUILD_NAME", "J'ai pull sans protection")
 REALM = os.getenv("WOW_REALM", "un royaume d'Azeroth")
 DB_PATH = os.getenv("LORE_DB_PATH", "lore.db")
-# Optionnel : ID d'un serveur pour synchroniser les commandes instantanément (dev).
-DEV_GUILD_ID = os.getenv("DEV_GUILD_ID")
+# Serveur Discord de la guilde : les commandes y sont synchronisées instantanément.
+DEV_GUILD_ID = os.getenv("DEV_GUILD_ID", "1569153457204633740")
+# Salon où chaque nouveau chapitre est publié (vide = publier là où la commande a été lancée).
+LORE_CHANNEL_ID = os.getenv("LORE_CHANNEL_ID", "1574017730900791376")
+# Faits établis de la saga, lus par le Chroniqueur avant chaque chapitre.
+CANON_PATH = os.getenv("LORE_CANON_PATH", "lore_canon.md")
+# Noms à ne jamais écrire dans la saga (séparés par des virgules).
+FORBIDDEN_NAMES = os.getenv("LORE_FORBIDDEN_NAMES", "Violette").split(",")
 
 EMBED_COLOR = discord.Color.from_rgb(201, 162, 39)  # or « légendaire »
 EMBED_LIMIT = 4000  # limite Discord : 4096 caractères par description d'embed
 
 log = logging.getLogger("chroniqueur")
 store = LoreStore(DB_PATH)
-writer = LoreWriter(GUILD_NAME, REALM)
+
+
+def load_canon(path: str) -> str:
+    try:
+        with open(path, encoding="utf-8") as f:
+            return f.read()
+    except FileNotFoundError:
+        log.warning("Fichier de lore %s introuvable, le Chroniqueur part de zéro.", path)
+        return ""
+
+
+writer = LoreWriter(GUILD_NAME, REALM, load_canon(CANON_PATH), FORBIDDEN_NAMES)
+
+
+async def get_lore_channel(client: discord.Client) -> discord.abc.Messageable | None:
+    """Renvoie le salon dédié au lore, ou None s'il n'est pas configuré / accessible."""
+    if not LORE_CHANNEL_ID:
+        return None
+    channel_id = int(LORE_CHANNEL_ID)
+    channel = client.get_channel(channel_id)
+    if channel is None:
+        try:
+            channel = await client.fetch_channel(channel_id)
+        except (discord.NotFound, discord.Forbidden):
+            log.warning("Salon de lore %s inaccessible.", channel_id)
+            return None
+    return channel if isinstance(channel, discord.abc.Messageable) else None
 
 
 def split_text(text: str, limit: int = EMBED_LIMIT) -> list[str]:
@@ -73,7 +105,7 @@ class LoreModal(discord.ui.Modal, title="Raconte un exploit de la guilde"):
 
     async def on_submit(self, interaction: discord.Interaction) -> None:
         assert interaction.guild_id is not None
-        await interaction.response.defer(thinking=True)
+        await interaction.response.defer(thinking=True, ephemeral=True)
         guild_id = interaction.guild_id
         author = interaction.user.display_name
         try:
@@ -86,8 +118,28 @@ class LoreModal(discord.ui.Modal, title="Raconte un exploit de la guilde"):
         chapter = store.add_chapter(
             guild_id, title, text, self.recit.value, interaction.user.id, author
         )
-        embeds = chapter_embeds(chapter)
-        await interaction.followup.send(embeds=embeds[:10])
+        embeds = chapter_embeds(chapter)[:10]
+
+        channel = await get_lore_channel(interaction.client)
+        if channel is not None:
+            try:
+                message = await channel.send(embeds=embeds)
+                await interaction.followup.send(
+                    f"✅ Ton récit est devenu le **chapitre {chapter.number}** : {message.jump_url}",
+                    ephemeral=True,
+                )
+                return
+            except discord.Forbidden:
+                log.warning("Pas la permission d'écrire dans le salon de lore.")
+        # Pas de salon dédié utilisable : publication là où la commande a été lancée.
+        if interaction.channel is not None:
+            await interaction.channel.send(embeds=embeds)
+            await interaction.followup.send(
+                f"✅ Chapitre {chapter.number} publié ici (salon de lore inaccessible).",
+                ephemeral=True,
+            )
+        else:
+            await interaction.followup.send(embeds=embeds)
 
     async def on_error(self, interaction: discord.Interaction, error: Exception) -> None:
         log.exception("Erreur dans le formulaire de lore", exc_info=error)
