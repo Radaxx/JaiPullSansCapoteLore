@@ -20,7 +20,7 @@ Chaque nouveau chapitre tient compte des précédents : personnages récurrents,
    *New Application* → onglet **Bot** → *Reset Token* (à copier).
    Aucun intent privilégié n'est nécessaire.
 2. **Inviter le bot** : onglet *OAuth2 → URL Generator*, cocher `bot` et `applications.commands`,
-   permissions `View Channels`, `Send Messages` + `Embed Links`, puis ouvrir l'URL générée.
+   permissions `View Channels`, `Send Messages`, `Embed Links` et `Read Message History`, puis ouvrir l'URL générée.
    Vérifie que le bot peut voir et écrire dans le salon de lore.
 3. **Clé d'IA gratuite** : par défaut le bot utilise **Gemini** (Google). Crée une clé gratuite sur
    [Google AI Studio](https://aistudio.google.com/apikey), sans carte bancaire. Voir « Choisir l'IA » plus bas pour les autres options.
@@ -52,7 +52,9 @@ Le dépôt contient `railway.json` (commande de démarrage `python bot.py`) et `
 1. **New Project → Deploy from GitHub repo**, choisis ce dépôt. Dans *Settings → Source*, sélectionne
    la branche qui contient le bot.
 2. **Volume (indispensable)** : clic droit sur le service → *Attach Volume*, point de montage `/data`.
-   Sans volume, la saga est effacée à chaque redéploiement (et le prologue republié).
+   Sans volume, la base est effacée à chaque redéploiement : le bot la reconstruit alors en relisant
+   le salon de lore (d'où la permission `Read Message History`), mais les récits originaux des
+   membres sont perdus. Le volume reste donc fortement recommandé.
 3. **Variables** (onglet *Variables*, pas de fichier `.env` sur Railway) :
 
    | Variable | Valeur |
