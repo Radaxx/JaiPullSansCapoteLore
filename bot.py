@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import os
+import re
 
 import discord
 from discord import app_commands
@@ -24,6 +25,8 @@ DEV_GUILD_ID = os.getenv("DEV_GUILD_ID", "1569153457204633740")
 LORE_CHANNEL_ID = os.getenv("LORE_CHANNEL_ID", "1574017730900791376")
 # Faits établis de la saga, lus par le Chroniqueur avant chaque chapitre.
 CANON_PATH = os.getenv("LORE_CANON_PATH", "lore_canon.md")
+# Chapitres d'ouverture publiés au premier démarrage, si la saga du serveur est vide.
+PROLOGUE_PATH = os.getenv("LORE_PROLOGUE_PATH", "prologue.md")
 # Noms à ne jamais écrire dans la saga (séparés par des virgules).
 FORBIDDEN_NAMES = os.getenv("LORE_FORBIDDEN_NAMES", "Violette").split(",")
 
@@ -44,6 +47,40 @@ def load_canon(path: str) -> str:
 
 
 writer = LoreWriter(GUILD_NAME, REALM, load_canon(CANON_PATH), FORBIDDEN_NAMES)
+
+
+def load_prologue(path: str) -> list[tuple[str, str]]:
+    """Lit le prologue : une section « ## Titre » par chapitre. Renvoie [(titre, texte)]."""
+    text = load_canon(path)
+    text = re.sub(r"<!--.*?-->", "", text, flags=re.DOTALL)
+    chapters = []
+    for section in re.split(r"^## ", text, flags=re.MULTILINE)[1:]:
+        title, _, body = section.partition("\n")
+        if title.strip() and body.strip():
+            chapters.append((title.strip(), body.strip()))
+    return chapters
+
+
+async def seed_prologue(client: discord.Client) -> None:
+    """Publie le prologue dans le salon de lore si la saga du serveur est encore vide."""
+    if not DEV_GUILD_ID:
+        return
+    guild_id = int(DEV_GUILD_ID)
+    if store.all_chapters(guild_id):
+        return
+    prologue = load_prologue(PROLOGUE_PATH)
+    if not prologue:
+        return
+    channel = await get_lore_channel(client)
+    for title, text in prologue:
+        chapter = store.add_chapter(guild_id, title, text, "(prologue)", 0, "Le Chroniqueur")
+        log.info("Prologue : chapitre %s « %s » ajouté.", chapter.number, title)
+        if channel is not None:
+            try:
+                await channel.send(embeds=chapter_embeds(chapter)[:10])
+            except discord.Forbidden:
+                log.warning("Pas la permission d'écrire dans le salon de lore.")
+                channel = None
 
 
 async def get_lore_channel(client: discord.Client) -> discord.abc.Messageable | None:
@@ -86,7 +123,8 @@ def chapter_embeds(chapter: Chapter) -> list[discord.Embed]:
         if i == 0:
             embed.title = f"📜 Chapitre {chapter.number} — {chapter.title}"
         if i == len(parts) - 1:
-            embed.set_footer(text=f"D'après le récit de {chapter.author_name} · {GUILD_NAME}")
+            origin = "Prologue" if chapter.author_id == 0 else f"D'après le récit de {chapter.author_name}"
+            embed.set_footer(text=f"{origin} · {GUILD_NAME}")
         embeds.append(embed)
     return embeds
 
@@ -167,6 +205,7 @@ class Chroniqueur(discord.Client):
 
     async def on_ready(self) -> None:
         log.info("Connecté en tant que %s", self.user)
+        await seed_prologue(self)
 
 
 lore_group = app_commands.Group(

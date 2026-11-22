@@ -53,12 +53,23 @@ faits marquants, puis redémarre le bot.
 Les noms listés dans `LORE_FORBIDDEN_NAMES` ne sont jamais écrits : le Chroniqueur a pour consigne
 d'utiliser un surnom, et le nom est remplacé automatiquement s'il apparaît quand même.
 
+## Le prologue
+
+Au premier démarrage, si la saga est encore vide, le bot publie automatiquement dans le salon de lore
+les deux chapitres d'ouverture écrits dans `prologue.md` :
+
+1. **Jess et le Nom maudit** : la fondation de la guilde par Jess, les quatre bans, le nouveau nom.
+2. **Le Grand Schisme** : l'affaire de l'Ombre Pourpre.
+
+Tu peux retoucher `prologue.md` avant le premier lancement. Si des chapitres existent déjà, le prologue n'est pas republié.
+
 ## Fonctionnement
 
 - `bot.py` — commandes slash et formulaire (modal Discord).
 - `lore_writer.py` — prompt du Chroniqueur et appel à l'API Claude (`claude-opus-5-5`).
   Le ton, la longueur et le style se règlent dans `SYSTEM_PROMPT`.
 - `lore_canon.md` — faits établis de la saga.
+- `prologue.md` — chapitres d'ouverture publiés au premier démarrage.
 - `lore_store.py` — chapitres stockés dans SQLite (`lore.db`), séparés par serveur Discord.
 
 Chaque appel envoie toute la saga existante au modèle pour garder la cohérence ; le cache de prompt
