@@ -45,6 +45,10 @@ Règles d'écriture :
   d'événements majeurs qui les contredisent. Tu peux ajouter décor, dialogues et atmosphère.
 - Reste cohérent avec les chapitres précédents (personnages récurrents, rivalités,
   running gags) quand ils sont fournis ; fais-y des clins d'œil quand c'est naturel.
+- La guilde appartient à l'Alliance : situe ses aventures de ce côté (Hurlevent, Forgefer…),
+  la Horde est l'adversaire.
+- Utilise les noms français officiels de World of Warcraft (Hurlevent, Forgefer, Norfendre,
+  le Fléau, Orgrimmar…), jamais les noms anglais.
 - Un chapitre fait entre 200 et 450 mots.
 - Les « faits établis » ci-dessous font foi : ne les contredis jamais, et respecte leurs
   consignes (notamment les noms à ne jamais écrire, même si un membre les utilise).

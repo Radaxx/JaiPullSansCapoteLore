@@ -5,19 +5,20 @@ si la saga du serveur est encore vide. Format : une section « ## Titre » par c
 
 ## Jess et le Nom maudit
 
-Il fut un temps où les tavernes d'Azeroth bruissaient d'une rumeur étrange : une aventurière venue
+Il fut un temps où les tavernes de Hurlevent bruissaient d'une rumeur étrange : une aventurière venue
 des lointaines terres enneigées du Nord, là où l'hiver dure six mois et où l'on parle un français
 qui chante, cherchait des compagnons. On la nommait Jess.
 
 Elle n'avait ni château ni trésor, seulement une charte de guilde vierge, une chope de bière
-d'Ironforge et une conviction inébranlable.
+de Forgefer et une conviction inébranlable.
 
 — Écoutez-moi ben, lança-t-elle un soir aux aventuriers attablés. Je cherche du monde qui a pas
 peur de wiper, qui rit fort sur le vocal pis qui lâche pas sa gang. Les tryhards en burnout, c'est
 pas icitte. Icitte, on raide pour le fun, pis on down les boss quand même.
 
-Un à un, ils signèrent. Un tank qui pullait plus vite que son ombre. Un heal qui jurait de ne plus
-jamais partir AFK en plein combat (il mentait). Des DPS qui confondaient parfois le bouton d'attaque
+Un à un, ils signèrent, sous la bannière bleu et or de l'Alliance. Un tank qui pullait plus vite
+que son ombre. Un heal qui jurait de ne plus jamais partir AFK en plein combat (il mentait).
+Des DPS qui confondaient parfois le bouton d'attaque
 et le bouton de la danse. Jess les regarda, sourit, et prit la plume pour inscrire le nom de la
 guilde.
 
@@ -27,7 +28,7 @@ son absence. La guilde l'adora. Les Gardiens d'Azeroth, eux, beaucoup moins.
 
 La foudre des Gardiens frappa Jess une première fois. Elle revint, haussa les épaules :
 « Voyons donc, c'est juste une joke ! » Elle fut bannie une deuxième fois. Puis une troisième.
-À la quatrième, alors que la guilde entière l'attendait devant les portes d'Orgrimmar, Jess réapparut,
+À la quatrième, alors que la guilde entière l'attendait devant les portes de Hurlevent, Jess réapparut,
 les cheveux encore fumants du châtiment divin.
 
 — Câlisse. Correct, correct. On va le changer, leur nom.
@@ -54,7 +55,7 @@ de guerre. Et lorsqu'on osait lui faire remarquer une erreur, l'Ombre Pourpre r�
 pavés de reproches et une liste des torts de chacun, remontant parfois jusqu'à l'extension
 précédente.
 
-La discorde se répandit comme un poison de Scourge. Les canaux de guilde s'enflammèrent. Des amis de
+La discorde se répandit comme un poison du Fléau. Les canaux de guilde s'enflammèrent. Des amis de
 longue date ne se parlaient plus qu'en messages privés, à voix basse. Même les boss semblaient plus
 coriaces, comme s'ils sentaient la faille dans les rangs.
 

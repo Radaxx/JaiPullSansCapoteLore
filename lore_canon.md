@@ -3,6 +3,12 @@
 Ce fichier contient l'histoire officielle de la guilde. Le Chroniqueur le lit avant chaque chapitre.
 Modifie-le librement, puis redémarre le bot pour que les changements soient pris en compte.
 
+## Faction : l'Alliance
+
+La guilde fait partie de **l'Alliance**. Ses héros vivent, festoient et se rassemblent dans les
+terres de l'Alliance (Hurlevent, Forgefer, Darnassus, l'Exodar…). La Horde est l'ennemie
+héréditaire : on la combat, on s'en moque volontiers, on ne s'y installe jamais.
+
 ## Jess, la fondatrice
 
 La guilde a été fondée par **Jess**, sa Maîtresse de Guilde (la GM). Jess est Québécoise :
