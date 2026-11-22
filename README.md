@@ -45,6 +45,28 @@ python bot.py
 Le serveur (`DEV_GUILD_ID`) et le salon de lore (`LORE_CHANNEL_ID`) de la guilde sont déjà configurés
 par défaut. Si le salon est inaccessible, le chapitre est publié là où la commande a été lancée.
 
+## Déploiement sur Railway
+
+Le dépôt contient `railway.json` (commande de démarrage `python bot.py`) et `.python-version`.
+
+1. **New Project → Deploy from GitHub repo**, choisis ce dépôt. Dans *Settings → Source*, sélectionne
+   la branche qui contient le bot.
+2. **Volume (indispensable)** : clic droit sur le service → *Attach Volume*, point de montage `/data`.
+   Sans volume, la saga est effacée à chaque redéploiement (et le prologue republié).
+3. **Variables** (onglet *Variables*, pas de fichier `.env` sur Railway) :
+
+   | Variable | Valeur |
+   |---|---|
+   | `DISCORD_TOKEN` | le token du bot |
+   | `GEMINI_API_KEY` | ta clé Gemini |
+   | `LORE_DB_PATH` | `/data/lore.db` |
+   | `WOW_REALM` | ton royaume (facultatif) |
+
+   Le nom de guilde, le serveur et le salon ont déjà les bonnes valeurs par défaut.
+4. Déploie : dans les *Deploy Logs*, tu dois voir `Connecté en tant que …`. Aucun port ni domaine n'est nécessaire.
+
+`AI_PROVIDER=ollama` ne fonctionne pas sur Railway (pas de modèle local) : garde `gemini` ou `groq`.
+
 ## Le lore existant
 
 `lore_canon.md` contient les faits établis (le Nom maudit et les 4 bans de la GM, le Grand Schisme…).
