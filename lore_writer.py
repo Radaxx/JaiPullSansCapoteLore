@@ -15,11 +15,11 @@ from lore_store import Chapter
 
 # fournisseur -> (URL de l'API, variable d'environnement de la clé, modèle par défaut)
 PROVIDERS: dict[str, tuple[str, str | None, str]] = {
-    # Gratuit avec une clé Google AI Studio. « latest » suit le dernier modèle Flash.
+    # Gratuit avec une clé Google AI Studio (modèle testé et fonctionnel en novembre 2026).
     "gemini": (
         "https://generativelanguage.googleapis.com/v1beta/openai/",
         "GEMINI_API_KEY",
-        "gemini-flash-latest",
+        "gemini-3.5-flash",
     ),
     # Gratuit avec une clé GroqCloud, très rapide (modèles open source).
     "groq": ("https://api.groq.com/openai/v1", "GROQ_API_KEY", "llama-3.3-70b-versatile"),
