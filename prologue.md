@@ -75,3 +75,45 @@ vocal éclata d'un rire libérateur. Ce soir-là, le donjon fut bouclé sans un 
 
 Depuis, quand un nouveau membre demande ce qu'il s'est passé, les vétérans échangent un regard,
 lèvent leur chope, et répondent simplement : « On en parle pas. Mais on s'en est sortis ensemble. »
+
+## La Grande Course au 60
+
+Depuis l'ouverture des portes d'Azeroth, le 4 novembre, une fièvre couvait dans les rangs de
+*J'ai pull sans protection*. L'Ombre Pourpre partie, la guilde put enfin se consacrer à ce qui
+comptait vraiment : monter de niveau. Vite. Très vite. Beaucoup trop vite.
+
+Aucun raid n'avait encore été tenté ; aucun dragon n'avait encore tremblé. Mais dans le canal de
+guilde, les messages « DING ! » tombaient à toute heure du jour et de la nuit, et chacun
+surveillait les niveaux des autres du coin de l'œil. Il fallut que Jess mette des mots sur ce que
+tout le monde pensait tout bas.
+
+— OK la gang, écoutez-moi ben, annonça-t-elle un soir sur le vocal. On va faire ça officiel :
+le premier qui ding 60, y gagne la gloire éternelle pis le droit de nous écœurer avec ça jusqu'à
+la prochaine extension. Qui embarque ?
+
+Quatre voix répondirent. Ainsi commença la Grande Course au 60.
+
+**Urkan** ouvrit le bal et jura devant toute la guilde de ne plus dormir avant le sommet. Les murs de la Marche de l'Ouest se souviennent encore de ses quêtes enchaînées à
+quatre heures du matin, à la seule lueur des feux de camp.
+
+**Timo Teh** opta pour la stratégie. Chaque quête fut pesée, chaque trajet calculé, chaque
+retour en ville réduit au strict nécessaire. Sur le vocal, on n'entendait plus que le cliquetis
+du clavier et, de temps à autre, un « optimal » murmuré avec satisfaction.
+
+**Rhéa** partit sans un mot. On n'aperçut plus que sa silhouette en coup de vent, entre deux
+maîtres de vol, les sacs pleins de trophées arrachés aux gnolls des Carmines. Puis, sans
+prévenir, un nouveau « DING » s'affichait, et les trois autres serraient les dents.
+
+**Théo**, enfin, misa sur les donjons, bravant les Mortemines et la Prison de Hurlevent jusqu'à
+connaître chaque recoin par cœur, au point de guider les nouvelles recrues les yeux fermés.
+
+Les nuits raccourcirent. Les cafés s'allongèrent. Dans le Bois de la Pénombre, on raconte qu'un
+worgen, voyant passer des cernes aussi profonds, préféra s'écarter par pitié.
+
+Jess, elle, observait la course depuis la taverne de la guilde, une chope à la main.
+
+— Câlisse, y sont malades, souffla-t-elle, attendrie. Mais c'est ma gang de malades.
+
+À l'heure où ces lignes sont écrites, nul ne sait encore qui franchira le premier le seuil du
+soixantième niveau. Les paris sont ouverts. Et dans les tavernes de Hurlevent, on murmure que le
+Chroniqueur garde déjà une page blanche pour y graver le nom du vainqueur.

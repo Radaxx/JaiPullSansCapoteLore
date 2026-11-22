@@ -70,17 +70,20 @@ def load_prologue(path: str) -> list[tuple[str, str]]:
 
 
 async def seed_prologue(client: discord.Client) -> None:
-    """Publie le prologue dans le salon de lore si la saga du serveur est encore vide."""
+    """Publie dans le salon de lore les chapitres du prologue qui n'ont pas encore été publiés.
+
+    Un chapitre ajouté plus tard à prologue.md est publié au démarrage suivant, à la suite
+    de la saga existante.
+    """
     if not DEV_GUILD_ID:
         return
     guild_id = int(DEV_GUILD_ID)
-    if store.all_chapters(guild_id):
-        return
-    prologue = load_prologue(PROLOGUE_PATH)
-    if not prologue:
+    published = {c.title for c in store.all_chapters(guild_id) if c.author_id == 0}
+    missing = [(t, b) for t, b in load_prologue(PROLOGUE_PATH) if t not in published]
+    if not missing:
         return
     channel = await get_lore_channel(client)
-    for title, text in prologue:
+    for title, text in missing:
         chapter = store.add_chapter(guild_id, title, text, "(prologue)", 0, "Le Chroniqueur")
         log.info("Prologue : chapitre %s « %s » ajouté.", chapter.number, title)
         if channel is not None:
