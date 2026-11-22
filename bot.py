@@ -69,6 +69,82 @@ def load_prologue(path: str) -> list[tuple[str, str]]:
     return chapters
 
 
+CHAPTER_TITLE_RE = re.compile(r"^📜 Chapitre (\d+) — (.+)$")
+PROLOGUE_FOOTER = "Prologue"
+
+
+def _chapter_title(message: discord.Message, bot_user: discord.abc.User) -> str | None:
+    """Titre du chapitre si le message est un chapitre publié par le bot, sinon None."""
+    if message.author.id != bot_user.id or not message.embeds:
+        return None
+    match = CHAPTER_TITLE_RE.match(message.embeds[0].title or "")
+    return match.group(2) if match else None
+
+
+async def sync_from_channel(client: discord.Client) -> None:
+    """Relit le salon de lore au démarrage.
+
+    - Si la base est vide (par exemple après un redéploiement sans volume), la saga est
+      reconstruite à partir des chapitres déjà publiés dans le salon.
+    - Les chapitres du prologue publiés en double sont supprimés (on garde le plus ancien).
+    """
+    if not DEV_GUILD_ID or client.user is None:
+        return
+    channel = await get_lore_channel(client)
+    if channel is None:
+        return
+    guild_id = int(DEV_GUILD_ID)
+    restore = not store.all_chapters(guild_id)
+    seen_prologue: set[str] = set()
+    restored = removed = 0
+    try:
+        async for message in channel.history(limit=None, oldest_first=True):
+            title = _chapter_title(message, client.user)
+            if title is None:
+                continue
+            footer = message.embeds[-1].footer.text or ""
+            is_prologue = footer.startswith(PROLOGUE_FOOTER)
+            if is_prologue:
+                if title in seen_prologue:
+                    await message.delete()
+                    removed += 1
+                    continue
+                seen_prologue.add(title)
+            if restore:
+                text = "\n".join(e.description or "" for e in message.embeds).strip()
+                if is_prologue:
+                    author_id, author = 0, "Le Chroniqueur"
+                else:
+                    author_id = -1  # auteur inconnu après restauration
+                    author = footer.removeprefix("D'après le récit de ").rsplit(" · ", 1)[0]
+                store.add_chapter(guild_id, title, text, "(restauré depuis Discord)", author_id, author)
+                restored += 1
+    except discord.Forbidden:
+        log.warning("Impossible de lire l'historique du salon de lore (permission manquante).")
+        return
+    if restored:
+        log.info("Saga reconstruite depuis le salon : %s chapitre(s).", restored)
+    if removed:
+        log.info("%s chapitre(s) du prologue en double supprimé(s) du salon.", removed)
+
+
+async def delete_published_chapter(client: discord.Client, chapter: Chapter) -> bool:
+    """Supprime du salon de lore le message d'un chapitre (parmi les 200 derniers messages)."""
+    channel = await get_lore_channel(client)
+    if channel is None or client.user is None:
+        return False
+    try:
+        # Le plus récent message portant ce titre (le numéro affiché peut différer après une
+        # reconstruction de la saga).
+        async for message in channel.history(limit=200):
+            if _chapter_title(message, client.user) == chapter.title:
+                await message.delete()
+                return True
+    except discord.Forbidden:
+        log.warning("Impossible de supprimer le chapitre du salon de lore.")
+    return False
+
+
 async def seed_prologue(client: discord.Client) -> None:
     """Publie dans le salon de lore les chapitres du prologue qui n'ont pas encore été publiés.
 
@@ -203,6 +279,7 @@ class Chroniqueur(discord.Client):
     def __init__(self) -> None:
         super().__init__(intents=discord.Intents.default())
         self.tree = app_commands.CommandTree(self)
+        self._synced = False
 
     async def setup_hook(self) -> None:
         self.tree.add_command(lore_group)
@@ -215,6 +292,10 @@ class Chroniqueur(discord.Client):
 
     async def on_ready(self) -> None:
         log.info("Connecté en tant que %s", self.user)
+        if self._synced:  # on_ready est rappelé à chaque reconnexion
+            return
+        self._synced = True
+        await sync_from_channel(self)
         await seed_prologue(self)
 
 
@@ -300,8 +381,12 @@ async def lore_annuler(interaction: discord.Interaction) -> None:
     if removed is None:
         await interaction.response.send_message("Il n'y a aucun chapitre à supprimer.", ephemeral=True)
     else:
-        await interaction.response.send_message(
-            f"🗑️ Chapitre {removed.number} « {removed.title} » effacé des archives.", ephemeral=True
+        await interaction.response.defer(ephemeral=True)
+        deleted = await delete_published_chapter(interaction.client, removed)
+        note = "" if deleted else " (message introuvable dans le salon : supprime-le à la main)"
+        await interaction.followup.send(
+            f"🗑️ Chapitre {removed.number} « {removed.title} » effacé des archives{note}.",
+            ephemeral=True,
         )
 
 
