@@ -1,3 +1,5 @@
 discord.py>=2.4
-anthropic>=2.12
+openai>=1.40
 python-dotenv>=1.0
+# Seulement si AI_PROVIDER=claude (payant) :
+# anthropic>=2.12

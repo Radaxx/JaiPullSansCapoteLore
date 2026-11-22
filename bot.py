@@ -46,7 +46,15 @@ def load_canon(path: str) -> str:
         return ""
 
 
-writer = LoreWriter(GUILD_NAME, REALM, load_canon(CANON_PATH), FORBIDDEN_NAMES)
+writer = LoreWriter(
+    GUILD_NAME,
+    REALM,
+    load_canon(CANON_PATH),
+    FORBIDDEN_NAMES,
+    provider=os.getenv("AI_PROVIDER", "gemini"),
+    model=os.getenv("AI_MODEL") or None,
+    base_url=os.getenv("AI_BASE_URL") or None,
+)
 
 
 def load_prologue(path: str) -> list[tuple[str, str]]:

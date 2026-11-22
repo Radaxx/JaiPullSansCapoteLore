@@ -22,7 +22,8 @@ Chaque nouveau chapitre tient compte des précédents : personnages récurrents,
 2. **Inviter le bot** : onglet *OAuth2 → URL Generator*, cocher `bot` et `applications.commands`,
    permissions `View Channels`, `Send Messages` + `Embed Links`, puis ouvrir l'URL générée.
    Vérifie que le bot peut voir et écrire dans le salon de lore.
-3. **Clé API Claude** : à créer sur [console.anthropic.com](https://console.anthropic.com).
+3. **Clé d'IA gratuite** : par défaut le bot utilise **Gemini** (Google). Crée une clé gratuite sur
+   [Google AI Studio](https://aistudio.google.com/apikey), sans carte bancaire. Voir « Choisir l'IA » plus bas pour les autres options.
 4. **Lancer** (Python 3.10+) :
 
 ```bash
@@ -34,7 +35,7 @@ pip install -r requirements.txt
 ```
 
 ```bash
-cp .env.example .env   # puis remplir DISCORD_TOKEN, ANTHROPIC_API_KEY, GUILD_NAME, WOW_REALM
+cp .env.example .env   # puis remplir DISCORD_TOKEN, GEMINI_API_KEY, WOW_REALM
 ```
 
 ```bash
@@ -63,15 +64,27 @@ les deux chapitres d'ouverture écrits dans `prologue.md` :
 
 Tu peux retoucher `prologue.md` avant le premier lancement. Si des chapitres existent déjà, le prologue n'est pas republié.
 
+## Choisir l'IA
+
+Le fournisseur se règle avec `AI_PROVIDER` dans `.env` :
+
+| `AI_PROVIDER` | Prix | Clé | Remarques |
+|---|---|---|---|
+| `gemini` (défaut) | Gratuit | `GEMINI_API_KEY` ([AI Studio](https://aistudio.google.com/apikey)) | Très bon en français. Sur l'offre gratuite, Google peut utiliser les textes envoyés pour améliorer ses produits. |
+| `groq` | Gratuit | `GROQ_API_KEY` ([console Groq](https://console.groq.com/keys)) | Très rapide, modèles open source (Llama…). |
+| `ollama` | Gratuit, local | aucune | Installer [Ollama](https://ollama.com) puis `ollama pull mistral-small` sur la machine du bot. Demande un PC assez puissant, rien ne sort de chez toi. |
+| `claude` | Payant | `ANTHROPIC_API_KEY` | Meilleure qualité d'écriture. Nécessite `pip install anthropic`. |
+
+Les offres gratuites ont des limites (requêtes par minute / par jour), largement suffisantes pour une guilde.
+Si un modèle par défaut est retiré par le fournisseur, indique-en un autre avec `AI_MODEL`.
+
 ## Fonctionnement
 
 - `bot.py` — commandes slash et formulaire (modal Discord).
-- `lore_writer.py` — prompt du Chroniqueur et appel à l'API Claude (`claude-opus-5-5`).
+- `lore_writer.py` — prompt du Chroniqueur et appel à l'IA choisie.
   Le ton, la longueur et le style se règlent dans `SYSTEM_PROMPT`.
 - `lore_canon.md` — faits établis de la saga.
 - `prologue.md` — chapitres d'ouverture publiés au premier démarrage.
 - `lore_store.py` — chapitres stockés dans SQLite (`lore.db`), séparés par serveur Discord.
 
-Chaque appel envoie toute la saga existante au modèle pour garder la cohérence ; le cache de prompt
-réduit le coût des appels successifs. Si le modèle décline un récit, l'API bascule automatiquement
-sur un modèle de secours (`fallbacks="default"`).
+Chaque appel envoie toute la saga existante au modèle pour garder la cohérence.

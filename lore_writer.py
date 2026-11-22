@@ -1,14 +1,32 @@
-"""Transforme les récits bruts des membres en chapitres romancés, via l'API Claude."""
+"""Transforme les récits bruts des membres en chapitres romancés, grâce à une IA.
+
+Fournisseurs gratuits pris en charge (via leur API compatible OpenAI) : Gemini, Groq, Ollama.
+Claude (payant) reste disponible avec AI_PROVIDER=claude.
+"""
 
 from __future__ import annotations
 
+import os
 import re
 
-import anthropic
+import openai
 
 from lore_store import Chapter
 
-MODEL = "claude-opus-5-5"
+# fournisseur -> (URL de l'API, variable d'environnement de la clé, modèle par défaut)
+PROVIDERS: dict[str, tuple[str, str | None, str]] = {
+    # Gratuit avec une clé Google AI Studio. « latest » suit le dernier modèle Flash.
+    "gemini": (
+        "https://generativelanguage.googleapis.com/v1beta/openai/",
+        "GEMINI_API_KEY",
+        "gemini-flash-latest",
+    ),
+    # Gratuit avec une clé GroqCloud, très rapide (modèles open source).
+    "groq": ("https://api.groq.com/openai/v1", "GROQ_API_KEY", "llama-3.3-70b-versatile"),
+    # 100 % gratuit et local : nécessite Ollama installé sur la machine du bot.
+    "ollama": ("http://localhost:11434/v1", None, "mistral-small"),
+}
+CLAUDE_MODEL = "claude-opus-5-5"
 
 SYSTEM_PROMPT = """\
 Tu es le Chroniqueur de la guilde « {guild_name} », sur le serveur {realm} de World of Warcraft.
@@ -57,8 +75,28 @@ class LoreWriter:
         canon: str = "",
         forbidden_names: list[str] | None = None,
         forbidden_replacement: str = "l'Ombre Pourpre",
+        provider: str = "gemini",
+        model: str | None = None,
+        base_url: str | None = None,
     ) -> None:
-        self.client = anthropic.AsyncAnthropic()
+        provider = provider.strip().lower()
+        if provider == "claude":
+            import anthropic  # facultatif : seulement si on utilise Claude (payant)
+
+            self.client = anthropic.AsyncAnthropic()
+            self.model = model or CLAUDE_MODEL
+        elif provider in PROVIDERS:
+            default_url, key_env, default_model = PROVIDERS[provider]
+            api_key = os.getenv(key_env) if key_env else "ollama"
+            if not api_key:
+                raise RuntimeError(f"Variable {key_env} manquante pour le fournisseur « {provider} ».")
+            self.client = openai.AsyncOpenAI(base_url=base_url or default_url, api_key=api_key)
+            self.model = model or default_model
+        else:
+            raise RuntimeError(
+                f"AI_PROVIDER inconnu : « {provider} ». Choix : {', '.join([*PROVIDERS, 'claude'])}."
+            )
+        self.provider = provider
         self.system = SYSTEM_PROMPT.format(guild_name=guild_name, realm=realm)
         if canon.strip():
             self.system += "\n<faits_etablis>\n" + canon.strip() + "\n</faits_etablis>\n"
@@ -84,9 +122,50 @@ class LoreWriter:
         return "\n".join(parts)
 
     async def _complete(self, user_content: list[dict]) -> str:
+        if self.provider == "claude":
+            text = await self._complete_claude(user_content)
+        else:
+            text = await self._complete_openai_compatible(user_content)
+        text = text.strip()
+        if not text:
+            raise LoreWriterError("Le Chroniqueur n'a rien écrit, réessaie.")
+        return self._scrub(text)
+
+    async def _complete_openai_compatible(self, user_content: list[dict]) -> str:
+        """Gemini, Groq, Ollama… via leur API compatible OpenAI."""
+        prompt = "\n\n".join(block["text"] for block in user_content)
+        try:
+            response = await self.client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {"role": "system", "content": self.system},
+                    {"role": "user", "content": prompt},
+                ],
+            )
+        except openai.RateLimitError as e:
+            raise LoreWriterError(
+                "Le Chroniqueur a atteint la limite du forfait gratuit, réessaie dans quelques minutes."
+            ) from e
+        except openai.APIStatusError as e:
+            raise LoreWriterError(f"Erreur de l'IA ({e.status_code}).") from e
+        except openai.APIConnectionError as e:
+            raise LoreWriterError("Impossible de joindre l'IA.") from e
+
+        if not response.choices:
+            raise LoreWriterError("Le Chroniqueur n'a rien écrit, réessaie.")
+        choice = response.choices[0]
+        if choice.finish_reason == "content_filter":
+            raise LoreWriterError(
+                "Le Chroniqueur refuse d'écrire ce passage. Reformule ton récit."
+            )
+        return choice.message.content or ""
+
+    async def _complete_claude(self, user_content: list[dict]) -> str:
+        import anthropic
+
         try:
             async with self.client.beta.messages.stream(
-                model=MODEL,
+                model=self.model,
                 max_tokens=16000,
                 system=self.system,
                 # Effort "medium" : bon équilibre qualité / vitesse pour de l'écriture créative.
@@ -110,10 +189,7 @@ class LoreWriter:
             raise LoreWriterError(
                 "Le Chroniqueur refuse d'écrire ce passage. Reformule ton récit."
             )
-        text = "".join(b.text for b in message.content if b.type == "text").strip()
-        if not text:
-            raise LoreWriterError("Le Chroniqueur n'a rien écrit, réessaie.")
-        return self._scrub(text)
+        return "".join(b.text for b in message.content if b.type == "text")
 
     async def write_chapter(
         self, chapters: list[Chapter], author_name: str, raw_input: str
