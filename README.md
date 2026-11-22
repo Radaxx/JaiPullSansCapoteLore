@@ -79,12 +79,14 @@ d'utiliser un surnom, et le nom est remplacé automatiquement s'il apparaît qua
 ## Le prologue
 
 Au premier démarrage, si la saga est encore vide, le bot publie automatiquement dans le salon de lore
-les deux chapitres d'ouverture écrits dans `prologue.md` :
+les chapitres d'ouverture écrits dans `prologue.md` :
 
 1. **Jess et le Nom maudit** : la fondation de la guilde par Jess, les quatre bans, le nouveau nom.
 2. **Le Grand Schisme** : l'affaire de l'Ombre Pourpre.
+3. **La Grande Course au 60** : Urkan, Timo Teh, Rhéa et Théo dans la course au premier 60.
 
-Tu peux retoucher `prologue.md` avant le premier lancement. Si des chapitres existent déjà, le prologue n'est pas republié.
+Un chapitre ajouté plus tard à `prologue.md` est publié au démarrage suivant, à la suite de la saga.
+Les chapitres déjà publiés ne sont jamais republiés (le titre sert de repère : ne le modifie pas après publication).
 
 ## Choisir l'IA
 
