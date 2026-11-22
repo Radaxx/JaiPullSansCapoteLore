@@ -42,22 +42,22 @@ d'Azeroth.
 
 ## Le Grand Schisme
 
-Les saisons passèrent, et la guilde de Jess prospéra. On wipait beaucoup, on riait plus encore, et
-les boss finissaient toujours par tomber. Mais toute légende a son heure sombre, et celle de
+Les jours passèrent, et la guilde de Jess grandit. On montait de niveau, on mourait bêtement dans
+les quêtes, on riait plus encore. Mais toute légende a son heure sombre, et celle de
 *J'ai pull sans protection* porte un nom que plus personne ne prononce.
 
 Les anciens l'appellent simplement l'Ombre Pourpre.
 
 Au début, rien ne la distinguait des autres recrues. Puis vinrent les premiers murmures sur le
-vocal, les reproches lancés après chaque wipe — toujours la faute du tank, du heal, du raid lead,
-jamais la sienne. Un loot mal réparti devenait une trahison. Une remarque anodine, une déclaration
+vocal, les reproches lancés après chaque wipe en donjon — toujours la faute du tank, du heal, du chef de
+groupe, jamais la sienne. Un loot mal réparti devenait une trahison. Une remarque anodine, une déclaration
 de guerre. Et lorsqu'on osait lui faire remarquer une erreur, l'Ombre Pourpre répondait par trois
 pavés de reproches et une liste des torts de chacun, remontant parfois jusqu'à l'extension
 précédente.
 
 La discorde se répandit comme un poison du Fléau. Les canaux de guilde s'enflammèrent. Des amis de
-longue date ne se parlaient plus qu'en messages privés, à voix basse. Même les boss semblaient plus
-coriaces, comme s'ils sentaient la faille dans les rangs.
+longue date ne se parlaient plus qu'en messages privés, à voix basse. Même les monstres semblaient
+plus coriaces, comme s'ils sentaient la faille dans les rangs.
 
 Jess tenta la diplomatie. Une fois. Deux fois. Dix fois.
 
@@ -65,13 +65,13 @@ Jess tenta la diplomatie. Une fois. Deux fois. Dix fois.
 
 Mais reconnaître ses torts était le seul sort que l'Ombre Pourpre n'avait jamais appris.
 
-Alors, un soir de raid, après un énième esclandre, Jess ouvrit le registre de la guilde. Le silence
+Alors, un soir, après un énième esclandre, Jess ouvrit le registre de la guilde. Le silence
 se fit sur le vocal. Un clic. Un seul.
 
 *[L'Ombre Pourpre a été expulsée de la guilde.]*
 
 Il y eut un long silence. Puis quelqu'un toussota, quelqu'un d'autre lâcha un « enfin… », et le
-raid éclata d'un rire libérateur. Ce soir-là, ils tombèrent le boss du premier coup.
+vocal éclata d'un rire libérateur. Ce soir-là, le donjon fut bouclé sans un seul wipe.
 
 Depuis, quand un nouveau membre demande ce qu'il s'est passé, les vétérans échangent un regard,
 lèvent leur chope, et répondent simplement : « On en parle pas. Mais on s'en est sortis ensemble. »

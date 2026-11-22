@@ -142,8 +142,7 @@ class LoreModal(discord.ui.Modal, title="Raconte un exploit de la guilde"):
         label="Que s'est-il passé ?",
         style=discord.TextStyle.paragraph,
         placeholder=(
-            "Ex : Hier soir en raid, Grumly a pull le boss pendant que le heal était AFK. "
-            "Wipe. Puis on l'a down au 12e try et Lysa a loot l'arme !"
+            "Ex : Urkan a pex jusqu'à 4h du mat, Théo est mort en tombant d'un pont…"
         ),
         min_length=10,
         max_length=4000,

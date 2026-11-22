@@ -9,6 +9,18 @@ La guilde fait partie de **l'Alliance**. Ses héros vivent, festoient et se rass
 terres de l'Alliance (Hurlevent, Forgefer, Darnassus, l'Exodar…). La Horde est l'ennemie
 héréditaire : on la combat, on s'en moque volontiers, on ne s'y installe jamais.
 
+## Époque actuelle (novembre 2026)
+
+Le jeu est sorti le **4 novembre 2026**. La guilde n'a encore fait **aucun raid** : tout le monde
+est en train de monter de niveau (« pex »), à coups de quêtes, de donjons et de nuits blanches.
+
+**La Grande Course au 60** : une course est lancée pour savoir qui sera le premier membre de la
+guilde à atteindre le niveau 60. Les concurrents sont **Urkan**, **Timo Teh**, **Rhéa** et
+**Théo**. Le vainqueur n'est pas encore connu : ne le désigne pas tant qu'un membre ne l'a pas
+raconté.
+
+Mets à jour cette section quand la guilde progresse (premier 60, premier raid…).
+
 ## Jess, la fondatrice
 
 La guilde a été fondée par **Jess**, sa Maîtresse de Guilde (la GM). Jess est Québécoise :
