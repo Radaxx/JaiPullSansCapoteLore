@@ -103,6 +103,9 @@ Le fournisseur se règle avec `AI_PROVIDER` dans `.env` :
 
 Les offres gratuites ont des limites (requêtes par minute / par jour), largement suffisantes pour une guilde.
 Si un modèle par défaut est retiré par le fournisseur, indique-en un autre avec `AI_MODEL`.
+Avec Gemini, si le modèle principal est surchargé (erreur 503), hors quota ou retiré, le bot essaie
+automatiquement des modèles de secours (`gemini-3-flash-preview`, `gemini-3.5-flash-lite`,
+`gemini-flash-lite-latest`). La liste se change avec `AI_FALLBACK_MODELS`.
 
 ## Fonctionnement
 

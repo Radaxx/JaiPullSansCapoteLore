@@ -54,6 +54,9 @@ writer = LoreWriter(
     provider=os.getenv("AI_PROVIDER", "gemini"),
     model=os.getenv("AI_MODEL") or None,
     base_url=os.getenv("AI_BASE_URL") or None,
+    fallback_models=(
+        os.environ["AI_FALLBACK_MODELS"].split(",") if "AI_FALLBACK_MODELS" in os.environ else None
+    ),
 )
 
 
