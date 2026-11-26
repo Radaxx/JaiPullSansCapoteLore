@@ -6,12 +6,15 @@ Claude (payant) reste disponible avec AI_PROVIDER=claude.
 
 from __future__ import annotations
 
+import logging
 import os
 import re
 
 import openai
 
 from lore_store import Chapter
+
+log = logging.getLogger("chroniqueur")
 
 # fournisseur -> (URL de l'API, variable d'environnement de la clé, modèle par défaut)
 PROVIDERS: dict[str, tuple[str, str | None, str]] = {
@@ -25,6 +28,13 @@ PROVIDERS: dict[str, tuple[str, str | None, str]] = {
     "groq": ("https://api.groq.com/openai/v1", "GROQ_API_KEY", "llama-3.3-70b-versatile"),
     # 100 % gratuit et local : nécessite Ollama installé sur la machine du bot.
     "ollama": ("http://localhost:11434/v1", None, "mistral-small"),
+}
+# Modèles de secours, essayés dans l'ordre quand le modèle principal est surchargé (503),
+# hors quota (429) ou retiré (404). Remplaçables avec AI_FALLBACK_MODELS.
+DEFAULT_FALLBACKS: dict[str, list[str]] = {
+    "gemini": ["gemini-3-flash-preview", "gemini-3.5-flash-lite", "gemini-flash-lite-latest"],
+    "groq": [],
+    "ollama": [],
 }
 CLAUDE_MODEL = "claude-opus-5-5"
 
@@ -87,6 +97,7 @@ class LoreWriter:
         provider: str = "gemini",
         model: str | None = None,
         base_url: str | None = None,
+        fallback_models: list[str] | None = None,
     ) -> None:
         provider = provider.strip().lower()
         if provider == "claude":
@@ -99,13 +110,19 @@ class LoreWriter:
             api_key = os.getenv(key_env) if key_env else "ollama"
             if not api_key:
                 raise RuntimeError(f"Variable {key_env} manquante pour le fournisseur « {provider} ».")
-            self.client = openai.AsyncOpenAI(base_url=base_url or default_url, api_key=api_key)
+            # Délai et nouvelles tentatives courts : en cas de surcharge, mieux vaut passer
+            # vite au modèle de secours que d'attendre.
+            self.client = openai.AsyncOpenAI(
+                base_url=base_url or default_url, api_key=api_key, timeout=90.0, max_retries=1
+            )
             self.model = model or default_model
         else:
             raise RuntimeError(
                 f"AI_PROVIDER inconnu : « {provider} ». Choix : {', '.join([*PROVIDERS, 'claude'])}."
             )
         self.provider = provider
+        fallbacks = DEFAULT_FALLBACKS.get(provider, []) if fallback_models is None else fallback_models
+        self.models = [self.model] + [m for m in (f.strip() for f in fallbacks) if m and m != self.model]
         self.system = SYSTEM_PROMPT.format(guild_name=guild_name, realm=realm)
         if canon.strip():
             self.system += "\n<faits_etablis>\n" + canon.strip() + "\n</faits_etablis>\n"
@@ -141,33 +158,44 @@ class LoreWriter:
         return self._scrub(text)
 
     async def _complete_openai_compatible(self, user_content: list[dict]) -> str:
-        """Gemini, Groq, Ollama… via leur API compatible OpenAI."""
+        """Gemini, Groq, Ollama… via leur API compatible OpenAI, avec modèles de secours."""
         prompt = "\n\n".join(block["text"] for block in user_content)
-        try:
-            response = await self.client.chat.completions.create(
-                model=self.model,
-                messages=[
-                    {"role": "system", "content": self.system},
-                    {"role": "user", "content": prompt},
-                ],
-            )
-        except openai.RateLimitError as e:
-            raise LoreWriterError(
-                "Le Chroniqueur a atteint la limite du forfait gratuit, réessaie dans quelques minutes."
-            ) from e
-        except openai.APIStatusError as e:
-            raise LoreWriterError(f"Erreur de l'IA ({e.status_code}).") from e
-        except openai.APIConnectionError as e:
-            raise LoreWriterError("Impossible de joindre l'IA.") from e
+        messages = [
+            {"role": "system", "content": self.system},
+            {"role": "user", "content": prompt},
+        ]
+        last_error: Exception | None = None
+        for model in self.models:
+            try:
+                response = await self.client.chat.completions.create(model=model, messages=messages)
+            except (
+                openai.RateLimitError,  # quota gratuit épuisé pour ce modèle
+                openai.InternalServerError,  # 5xx : serveurs surchargés
+                openai.NotFoundError,  # modèle retiré
+                openai.APIConnectionError,  # réseau ou délai dépassé
+            ) as e:
+                log.warning("Modèle %s indisponible (%s), essai du suivant.", model, type(e).__name__)
+                last_error = e
+                continue
+            except openai.APIStatusError as e:
+                raise LoreWriterError(f"Erreur de l'IA ({e.status_code}).") from e
 
-        if not response.choices:
-            raise LoreWriterError("Le Chroniqueur n'a rien écrit, réessaie.")
-        choice = response.choices[0]
-        if choice.finish_reason == "content_filter":
-            raise LoreWriterError(
-                "Le Chroniqueur refuse d'écrire ce passage. Reformule ton récit."
-            )
-        return choice.message.content or ""
+            if not response.choices:
+                raise LoreWriterError("Le Chroniqueur n'a rien écrit, réessaie.")
+            choice = response.choices[0]
+            if choice.finish_reason == "content_filter":
+                raise LoreWriterError(
+                    "Le Chroniqueur refuse d'écrire ce passage. Reformule ton récit."
+                )
+            if model != self.model:
+                log.info("Chapitre écrit avec le modèle de secours %s.", model)
+            return choice.message.content or ""
+
+        if isinstance(last_error, openai.RateLimitError):
+            message = "Le Chroniqueur a atteint la limite du forfait gratuit, réessaie dans quelques minutes."
+        else:
+            message = "Les serveurs de l'IA sont surchargés, réessaie dans quelques minutes."
+        raise LoreWriterError(message) from last_error
 
     async def _complete_claude(self, user_content: list[dict]) -> str:
         import anthropic
